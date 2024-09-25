@@ -1,0 +1,20 @@
+{
+  "name": "langchain-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/core": "^0.3.3",
+    "@langchain/openai": "^0.3.2",
+    "dotenv": "^16.4.5",
+    "langchain": "0.3.2",
+    "openai": "^4.63.0"
+  }
+}
