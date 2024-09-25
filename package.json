@@ -11,10 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@langchain/community": "^0.3.3",
     "@langchain/core": "^0.3.3",
     "@langchain/openai": "^0.3.2",
+    "cheerio": "^1.0.0",
+    "chromadb": "^1.9.2",
     "dotenv": "^16.4.5",
     "langchain": "0.3.2",
     "openai": "^4.63.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
