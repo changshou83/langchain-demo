@@ -6,6 +6,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { config } from "dotenv";
+import { ChromaClient } from "chromadb";
 
 config();
 
@@ -39,7 +40,13 @@ async function getVectorStore(type = "memory") {
       collectionName: "law",
     };
     try {
-      await Chroma.fromDocuments(splits, embeddings, opt);
+      const client = new ChromaClient({ path: opt.url });
+      const collection = await client.getCollection({
+        name: opt.collectionName,
+      });
+      if (!collection) {
+        await Chroma.fromDocuments(splits, embeddings, opt);
+      }
       return new Chroma(embeddings, opt);
     } catch (error) {
       console.error("在docker里面开chromadb了吗？");
