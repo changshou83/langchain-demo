@@ -10,7 +10,7 @@ import { ChromaClient } from "chromadb";
 
 config();
 
-async function getVectorStore(type = "memory") {
+async function getVectorStoreOptions() {
   // load docs
   const loader = new CheerioWebBaseLoader(
     "https://www.gov.cn/jrzg/2013-10/25/content_2515601.htm",
@@ -30,27 +30,30 @@ async function getVectorStore(type = "memory") {
     { model: "text-embedding-3-small", apiKey: process.env.OPENAI_API_KEY },
     { baseURL: process.env.OPENAI_API_BASE }
   );
-  let vectorStore;
-  if (type === "memory") {
-    vectorStore = await MemoryVectorStore.fromDocuments(splits, embeddings);
-    return vectorStore;
-  } else if (type === "chroma") {
-    const opt = {
-      url: "http://localhost:8000",
-      collectionName: "law",
-    };
-    try {
-      const client = new ChromaClient({ path: opt.url });
-      const collection = await client.getCollection({
-        name: opt.collectionName,
-      });
-      if (!collection) {
-        await Chroma.fromDocuments(splits, embeddings, opt);
-      }
-      return new Chroma(embeddings, opt);
-    } catch (error) {
-      console.error("在docker里面开chromadb了吗？");
+  return { splits, embeddings };
+}
+
+async function getMemoryVectorStore({ splits, embeddings }) {
+  let vectorStore = await MemoryVectorStore.fromDocuments(splits, embeddings);
+  return vectorStore;
+}
+
+async function getChromaVectorStore({ splits, embeddings }) {
+  const opt = {
+    url: "http://localhost:8000",
+    collectionName: "law",
+  };
+  try {
+    const client = new ChromaClient({ path: opt.url });
+    const collection = await client.getCollection({
+      name: opt.collectionName,
+    });
+    if (!collection) {
+      await Chroma.fromDocuments(splits, embeddings, opt);
     }
+    return new Chroma(embeddings, opt);
+  } catch (error) {
+    console.error("在docker里面开chromadb了吗？");
   }
 }
 
@@ -81,7 +84,7 @@ async function getRAGChain() {
 async function main() {
   const ragChain = getRAGChain();
   const [question = ""] = process.argv.slice(2);
-  const vectorStore = await getVectorStore("memory");
+  const vectorStore = await getMemoryVectorStore(await getVectorStoreOptions());
   const retriever = vectorStore.asRetriever({
     k: 2,
     searchType: "similarity",
